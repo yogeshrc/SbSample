@@ -2,7 +2,9 @@
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 using Newtonsoft.Json;
+using System;
 using System.IO;
+using System.Text;
 
 namespace MessagePublisher
 {
@@ -23,17 +25,21 @@ namespace MessagePublisher
             //Step 2: Build the object to serialize
             var user = new PresoUser() { Id = 1, Name = "John Doe", Role = Roles.Presenter };
 
-            //Step 3: Create JSON message
-            var jsonStream = new MemoryStream();
-            var serializer = new JsonSerializer();
-            using (var sw = new StreamWriter(jsonStream))
-                using (var jsonWriter = new JsonTextWriter(sw))
-                    serializer.Serialize(jsonWriter, user);
+            //Step 3: Create to JSON stream
+            var jsonText = JsonConvert.SerializeObject(user);
+            var jsonStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonText));
 
-            //Step 4: Send message
+            //Step 4: Build message to send
             var message = new BrokeredMessage(jsonStream);
+
+            //Step 5: Send the message
             var client = TopicClient.CreateFromConnectionString(connectionString, Topic);
+            Console.WriteLine("About to send message. Press <ENTER> to continue");
+            Console.ReadLine();
             client.Send(message);
+
+            Console.WriteLine("Message sent. Press <ENTER> to exit...");
+            Console.ReadLine();
         }
     }
 }
