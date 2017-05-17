@@ -3,6 +3,7 @@ using Microsoft.Azure;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace MessageSubscriber
@@ -14,6 +15,9 @@ namespace MessageSubscriber
 
         static void Main(string[] args)
         {
+            Console.BackgroundColor = ConsoleColor.DarkBlue;
+            Console.ForegroundColor = ConsoleColor.Yellow;
+
             bool continueReading = false;
             do
             {
@@ -28,6 +32,7 @@ namespace MessageSubscriber
                 client.OnMessageAsync(Callback);
                 Console.WriteLine("Do you want to exit? (Y/N)");
                 continueReading = Console.ReadKey().Key == ConsoleKey.N;
+                Console.Clear();
             } while (continueReading);
         }
 
@@ -36,8 +41,14 @@ namespace MessageSubscriber
             Console.WriteLine();
             Console.WriteLine("Received message...");
             Console.WriteLine("\t Message ID >> {0}", message.MessageId);
-            Console.WriteLine("\t Message Body >> \n{0}\n", message.GetBody<PresoUser>());
-            return Task.Run(() => message.Abandon());
+            var stream = message.GetBody<Stream>();
+            using (var sr = new StreamReader(stream))
+            {
+                string messageText = sr.ReadToEnd();
+                var user = new PresoUser(messageText);
+                Console.WriteLine("\t Message Body >> \n{0}\n", messageText);
+            }
+            return Task.Run(() => message.Complete());
         }
     }
 }

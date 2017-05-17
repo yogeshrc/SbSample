@@ -26,8 +26,7 @@ namespace MessagePublisher
             var user = new PresoUser() { Id = 1, Name = "John Doe", Role = Roles.Presenter };
 
             //Step 3: Create to JSON stream
-            var jsonText = JsonConvert.SerializeObject(user);
-            var jsonStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonText));
+            var jsonStream = new MemoryStream(Encoding.UTF8.GetBytes(user.ToString()));
 
             //Step 4: Build message to send
             var message = new BrokeredMessage(jsonStream);

@@ -10,6 +10,14 @@ namespace MessagePublisher
         {
         }
 
+        public PresoUser(string jsonText)
+        {
+            var temp = JsonConvert.DeserializeObject<PresoUser>(jsonText);
+            Id = temp.Id;
+            Name = temp.Name;
+            Role = temp.Role;
+        }
+
         [DataMember]
         public int Id { get; set; }
         [DataMember]
